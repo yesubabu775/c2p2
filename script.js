@@ -1,20 +1,50 @@
-function generateRandomNumber() {
- const randomNumber = Math.floor(Math.random() * 100) + 1;
- const numDisplay = document.getElementById("randomNumber");
- numDisplay.innerHTML= "";
- const newPara=document.createElement("p");
- newPara.innerHTML='Random Number: '  + randomNumber;
- numDisplay.appendChild(newPara);
- }
- function addItem() {
- var itemList = document.getElementById("itemList");
- var newItem = document.createElement("li");
- newItem.innerHTML = "Item " + (itemList.children.length + 1);
- itemList.appendChild(newItem);
- }
- function removeItem() {
- var itemList = document.getElementById("itemList");
- if (itemList.children.length > 0) {
- itemList.removeChild(itemList.lastChild);
- }
- }
+// Array to hold cart items
+let cart = [];
+
+// Function to add item to cart
+function addToCart(name, price) {
+  let item = cart.find(item => item.name === name);
+  if (item) {
+    item.quantity += 1;
+  } else {
+    cart.push({ name, price, quantity: 1 });
+  }
+  updateCart();
+}
+
+// Function to remove item from cart
+function removeFromCart(name) {
+  cart = cart.filter(item => item.name !== name);
+  updateCart();
+}
+
+// Function to update item quantity
+function updateQuantity(name, quantity) {
+  let item = cart.find(item => item.name === name);
+  if (item) {
+    item.quantity = parseInt(quantity);
+    if (item.quantity <= 0) {
+      removeFromCart(name);
+    } else {
+      updateCart();
+    }
+  }
+}
+
+// Function to update the cart display
+function updateCart() {
+  let cartItems = document.getElementById('cartItems');
+  cartItems.innerHTML = ''; // Clear existing items
+
+  cart.forEach(item => {
+    let li = document.createElement('li');
+    // Using backticks for template literals and standard quotes for attributes
+    li.innerHTML = `
+      ${item.name} - Rs.${item.price} x ${item.quantity}
+      <button onclick="removeFromCart('${item.name}')">Remove</button>
+      <input type="number" value="${item.quantity}" min="0" 
+        onchange="updateQuantity('${item.name}', this.value)">
+    `;
+    cartItems.appendChild(li);
+  });
+}
